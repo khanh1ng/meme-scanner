@@ -1,0 +1,7 @@
+# The original 82-name universe, produced by asking a language model to list potential meme stocks.
+# It is INVALID as a research universe: the model already knew which names became meme stocks.
+# Kept only as the "hindsight ceiling" control, for scale. Never reported as an achievable result.
+ACHR AMC ANY APE ASTS ATER ATNF BB BBBY BBIG BE BIGC BTBT BYND CARM CELH CENN CLOV COMS COSM CRKN
+CVNA DJT EXPR FFIE FUBO GETY GFAI GME GNS GREE HKD HOLO HOOD HUDI IONQ IRNT KOSS KSCP LAES LCID
+LUNR MARA MARK MMAT MSTR MULN NKLA NOK NVAX OPEN PHUN PLTR PROG PRPL QUBT RBLX RDBX RDDT REKR RGTI
+RIDE RILY RIOT RIVN ROOT SAVA SDIG SERV SMCI SNDL SOFI SOUN SPRT SST TRKA TUP UPST WEN WISH WKHS WOLF

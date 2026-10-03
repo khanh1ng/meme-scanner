@@ -1,0 +1,25 @@
+# data and credentials never leave this machine
+data/
+*.parquet
+.env
+*.env
+llm_context.json
+
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+.venv/
+
+# notebooks
+.ipynb_checkpoints/
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/
+
+# large backtest outputs (regenerate with scripts/run_backtest.py)
+results/trades_*.csv
+results/equity_*.csv
