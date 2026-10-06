@@ -2,19 +2,45 @@
 
 [![tests](https://github.com/khanh1ng/meme-scanner/actions/workflows/tests.yml/badge.svg)](https://github.com/khanh1ng/meme-scanner/actions/workflows/tests.yml)
 
-**A point-in-time scanner for meme-stock squeezes: an exit system that captures the big moves, a
-selection screen that finds +100% movers at 12 times the base rate, and a backtest engine audited
-for 19 kinds of bias.**
+**Can a point-in-time scanner catch meme-stock squeezes before they run?**
 
 *Research June–September 2026 (reports dated July 30, August 21 and September 18); packaged and
 published October 2026.*
 
+**Why it is worth testing.** A short squeeze has a mechanical cause: when a heavily shorted,
+small-float stock starts to rise, short sellers must buy to cover, which pushes it higher.
+Structure (short interest, float, volatility) says which names *can* squeeze; ignition (social
+acceleration, borrow-fee spikes, volume) says which names are *starting* to. If the list of
+candidates is built before any price move, a rule-based trigger can enter early and a
+trend-following exit can hold the rare very large move.
+
+**What the research concludes.**
+
+* **Basket selection decides the result.** With identical entry, exit and cost rules, names known to
+  squeeze earn +1.22% per trade and random names from the same pool lose −1.09% (Stage 2 below).
+  The August report found the same gap first (+3.12% on the original list, −0.60% on 113 random
+  names) and concluded that the logic works but "cannot choose which names to watch".
+* **The execution layer works.** Every trend-break exit was a winner (average +30.4%), all ten best
+  trades closed on it, and the no-progress exit clears dead positions at an average cost of 2.6%.
+* **The language model is useful only for reading text.** The deterministic core needs no language
+  model in the decision path. Asking a model to *name* candidates returns names it already knows
+  squeezed, which is hindsight; its proper role is turning social posts into features for names the
+  pipeline has already selected.
+* **Price and volume alone cannot select.** The point-in-time price-and-volume screen lands at the
+  random-names floor, so the selection edge has to come from other data.
+* **Further data is needed, and it is identified.** Borrow fee and utilisation (no free history),
+  options positioning (out-of-the-money call volume has the strongest positive IC found, +0.061),
+  social text across the full universe, float and dilution filings, and delisted names.
+
+**Is it doable, and is it worth forward testing?** Not deployable yet: no point-in-time selection
+has beaten the random floor. Worth forward testing, as paper trading: the inputs most directly
+linked to a squeeze, borrow fees and social text, have no free history, so recording them live is
+the only way to test them, and the live recorder (`src/memescan/data/live.py`) already does. Real
+capital should follow only if the walk-forward in the specification passes its acceptance criteria
+fixed in advance, starting with beating SPY's Sharpe ratio of 0.95.
+
 ## Highlights
 
-* **The exit ladder captures the large moves.** On 1,167 trades, every trend-break exit was a winner
-  (323 trades, average +30.4%, +$981,781), and all 10 of the best trades, from +160.4% to
-  +1,152.2%, closed on that rule. The no-progress exit clears dead positions at an average cost of
-  only 2.6% (August report, Section 5).
 * **The selection research finds where squeezes come from.** Of all symbol-days, 0.68% are followed
   by a +100% move within 20 sessions; a combined structural gate raises that to 8.35%, a 12.19x
   lift. A cross-sectional percentile version keeps a stable universe of about 40 names a day with a
