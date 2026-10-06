@@ -151,6 +151,17 @@ Why they differ from section 1:
 * the notebook run behind these values was not preserved. `archive/scripts/compare_versions.py` is a
   different comparison (top 30 names a day, no cost model), so its saved output does not match them.
 
+Two further statements in the August report differ from the v2 pipeline and are not regenerated:
+
+* Section 6.2 reports that at full scale (10,236 symbols, daily bars from 2016) every admissible
+  point-in-time definition returned a gross expectancy near +0.08% per trade, against +0.04% for a
+  random control. The v2 trigger and universe reproduced here give −0.39% per trade before costs
+  (section 1, "no costs" row). The definitions behind the report's figure were not preserved, so
+  the two cannot be reconciled; both say the same thing about selection, that point-in-time
+  screens do no better than random names.
+* The report's screens used a $2M liquidity floor and a 4% ATR floor. The v2 pipeline uses the
+  specification's $1M floor and no ATR floor (section 1, rules).
+
 None of these values is regenerated here. The table in section 1 is the only backtest result this
 repository stands behind. Its message agrees with the August report's own conclusion and is
 stronger: no valid version beats SPY's 0.95, and the full-universe version with costs loses money.
