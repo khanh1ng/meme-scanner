@@ -1,5 +1,5 @@
 # data and credentials never leave this machine
-data/
+/data/
 *.parquet
 .env
 *.env
