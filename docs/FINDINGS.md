@@ -24,6 +24,10 @@ On 2,673 sessions (2016-01-04 to 2026-08-20) and 10,236 tickers, with costs and 
 | corrected | PIT universe, no costs | 2527 | 36.3% | -0.39% | 0.00% | $2,277 | -29.9% | -0.19 | -98.4% | −$259,665 |
 <!-- TABLE:END -->
 
+Max drawdown near −99% is the cumulative loss itself: fixed $10k positions on $100k with no
+compounding, and new entries stop once capital falls below one position. The random-names floor
+ends in the same place; even the hindsight ceiling draws down −55%.
+
 **Rules (all point in time).**
 
 * Universe for day t, from data through t−1:

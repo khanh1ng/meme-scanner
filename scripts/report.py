@@ -1,4 +1,4 @@
-"""Write the backtest tables from results/ into README.md and docs/FINDINGS.md, between markers.
+"""Write the backtest summary into README.md and the full table into docs/FINDINGS.md, between markers.
 No number in those tables is typed by hand.
 
     python scripts/report.py
@@ -39,6 +39,18 @@ def headline(df, meta):
             f"`src/memescan/backtest.py` move it to {c.loc[pit, 'sharpe']:.2f}.")
 
 
+def summary(df):
+    c = df[df.engine == "corrected"].set_index("universe")
+    pit, ceil, floor = "PIT universe", "Hindsight 82, same filter (ceiling)", "Random names, same filter (floor)"
+    rows = [("Names known to squeeze (hindsight list; upper bound, invalid as a strategy)", ceil),
+            ("Random names from the same tradable pool (floor)", floor),
+            ("Point-in-time price-and-volume screen", pit)]
+    out = ["| Selection, same entry, exits, sizing and costs | Trades | Win rate | Mean net return / trade |",
+           "|---|---:|---:|---:|"]
+    out += [f"| {label} | {int(c.loc[k, 'n']):,} | {c.loc[k, 'win']:.1%} | {c.loc[k, 'exp']:+.2%} |" for label, k in rows]
+    return "\n".join(out)
+
+
 def fill(path, key, text):
     s = path.read_text()
     pat = re.compile(rf"(<!-- {key}:START -->\n).*?(<!-- {key}:END -->)", re.S)
@@ -49,9 +61,10 @@ def fill(path, key, text):
 def main():
     df = pd.read_csv(R / "backtest_summary.csv")
     meta = json.loads((R / "backtest_meta.json").read_text())
-    for p in (ROOT / "README.md", ROOT / "docs" / "FINDINGS.md"):
-        fill(p, "HEADLINE", headline(df, meta))
-        fill(p, "TABLE", table(df))
+    fill(ROOT / "README.md", "SUMMARY", summary(df))
+    findings = ROOT / "docs" / "FINDINGS.md"
+    fill(findings, "HEADLINE", headline(df, meta))
+    fill(findings, "TABLE", table(df))
     print("README.md and docs/FINDINGS.md updated")
 
 

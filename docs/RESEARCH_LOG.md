@@ -1,4 +1,4 @@
-# Research log: how a Sharpe-1.07 backtest became a loss
+# Research log: from a hindsight-biased Sharpe of 1.07 to a point-in-time baseline
 
 This project set out to catch meme-stock squeezes before they run. Its most useful output is a
 catalogue of the ways the backtest lied, each found, measured and turned into a guard. This log
