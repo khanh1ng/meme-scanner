@@ -1,8 +1,13 @@
 # meme-scanner
 
+[![tests](https://github.com/khanh1ng/meme-scanner/actions/workflows/tests.yml/badge.svg)](https://github.com/khanh1ng/meme-scanner/actions/workflows/tests.yml)
+
 **A point-in-time scanner for meme-stock squeezes: an exit system that captures the big moves, a
 selection screen that finds +100% movers at 12 times the base rate, and a backtest engine audited
 for 19 kinds of bias.**
+
+*Research June–September 2026 (reports dated July 30, August 21 and September 18); packaged and
+published October 2026.*
 
 ## Highlights
 
@@ -85,6 +90,10 @@ On 2,673 sessions (2016-01-04 to 2026-08-20) and 10,236 tickers, with costs and 
 | corrected | Random names, same filter (floor) | 895 | 35.1% | -1.09% | 1.06% | $2,031 | -30.7% | -0.53 | -99.1% | −$134,166 |
 | corrected | PIT universe, no costs | 2527 | 36.3% | -0.39% | 0.00% | $2,277 | -29.9% | -0.19 | -98.4% | −$259,665 |
 <!-- TABLE:END -->
+
+Max drawdown near −99% is the cumulative loss itself: fixed $10k positions on $100k with no
+compounding, and new entries stop once capital falls below one position. The random-names floor
+ends in the same place; even the hindsight ceiling draws down −55%.
 
 `legacy` is the research notebook's engine, reproduced exactly. `corrected` fixes two engine
 defects found while packaging this project. The hindsight list is invalid by construction and is
