@@ -53,9 +53,10 @@ ends in the same place; even the hindsight ceiling draws down −55%.
 
 * **The point-in-time strategy loses money before costs as well as after.** The "no costs" row is
   also negative, so the failure is in selection, not in friction.
-* **It does no better than random names.** Names drawn at random from the same pool end in the same
-  place, which is what a strategy with no selection skill would show. No formal test was run; with a
-  result this negative, none is needed to reject the strategy.
+* **It does no better than random names.** Against 200 random-name draws from the same pool
+  (`scripts/run_random_floor.py`, specification `docs/spec/random_floor_test.md`, fixed before the run),
+  the screen's mean net return per trade is below 95.5% of the draws (one-sided p = 0.96 for skill);
+  the hindsight list is above all of them (p = 0.005).
 * **Only the hindsight list works.** That list is invalid by construction (Research log, defect 1).
   It is shown for scale.
 * **Fixing the engine made the result worse, not better.** The legacy engine let losses that had not

@@ -2,60 +2,76 @@
 
 [![tests](https://github.com/khanh1ng/meme-scanner/actions/workflows/tests.yml/badge.svg)](https://github.com/khanh1ng/meme-scanner/actions/workflows/tests.yml)
 
-**Can a point-in-time scanner catch meme-stock squeezes before they run?**
+**Can meme-stock squeezes be selected before they run, using only what was known at the time?**
 
 *Research June–September 2026 (reports dated July 30, August 21 and September 18); packaged and
 published October 2026.*
 
-**Why it is worth testing.** A short squeeze has a mechanical cause: when a heavily shorted,
-small-float stock starts to rise, short sellers must buy to cover, which pushes it higher.
-Structure (short interest, float, volatility) says which names *can* squeeze; ignition (social
-acceleration, borrow-fee spikes, volume) says which names are *starting* to. If the list of
-candidates is built before any price move, a rule-based trigger can enter early and a
-trend-following exit can hold the rare very large move.
+<!-- TOP:START -->
+**Summary.** The project asks whether meme-stock squeezes can be selected before they run using
+only information available at the time. The answer so far: the execution layer converts good selection into profit, selection decides the result, and price and volume alone do not select. With identical trading rules,
+names that later squeezed earn +1.22% per trade after costs, above all 200 random-name
+draws (p = 0.005); the point-in-time price-and-volume screen earns −1.21%, below 95.5% of
+the random draws (p = 0.96 for skill). Before costs its trades earn +0.02%
+per trade; costs of about 1.2% per trade in these illiquid names decide the sign. The inputs
+most directly linked to a squeeze (borrow cost, options positioning, float and dilution, social text)
+are specified for the next stage and not yet tested.
 
-**What the research concludes.**
+## Hypotheses and verdicts
 
-* **Basket selection decides the result.** With identical entry, exit and cost rules, names known to
-  squeeze earn +1.22% per trade and random names from the same pool lose −1.09% (Stage 2 below).
-  The August report found the same gap first (+3.12% on the original list, −0.60% on 113 random
-  names) and concluded that the logic works but "cannot choose which names to watch".
-* **The execution layer works.** Every trend-break exit was a winner (average +30.4%), all ten best
-  trades closed on it, and the no-progress exit clears dead positions at an average cost of 2.6%.
-* **The language model is useful only for reading text.** The deterministic core needs no language
-  model in the decision path. Asking a model to *name* candidates returns names it already knows
-  squeezed, which is hindsight; its proper role is turning social posts into features for names the
-  pipeline has already selected.
-* **Price and volume alone cannot select.** The point-in-time price-and-volume screen lands at the
-  random-names floor, so the selection edge has to come from other data.
-* **Further data is needed, and it is identified.** Borrow fee and utilisation (no free history),
-  options positioning (out-of-the-money call volume has the strongest positive IC found, +0.061),
-  social text across the full universe, float and dilution filings, and delisted names.
+| | Hypothesis | Test | Evidence | Verdict |
+|---|---|---|---|---|
+| H1 | A list of meme stocks named by a language model is a valid universe | Same rules on the list and on random names (August report) | +3.12% per trade on the list, −0.60% on 113 random names; a model trained after 2021 already knows which stocks squeezed | **Rejected**: hindsight bias |
+| H2 | The execution layer turns good selection into profit | Hindsight list against 200 random-name draws ([spec](docs/spec/random_floor_test.md)) | +1.22% per trade against random −0.87% [−1.19%, −0.73%]; p = 0.005 | **Supported** |
+| H3 | A point-in-time price-and-volume screen selects better than random | Same test for the screen | −1.21% per trade, below 95.5% of random draws; p = 0.96 | **Not supported** |
+| H4 | High short interest marks the names that squeeze | Lift of days-to-cover on the chance of a +100% move in 20 sessions *(recorded, survivor data)* | Days to cover ≥ 3: 0.60x; below 2: 1.44x; median change in short interest before large moves 0% | **Not supported** at bi-monthly frequency |
+| H5 | A volume spike marks the start of a squeeze | Relative volume on the day a +100% move begins *(recorded)* | Median 0.97x; what precedes it is a slow build (20/60-day volume 1.28x) | **Not supported**: a spike trigger is late |
+| H6 | Structural screens raise the base rate of large moves | Hit rate of +100% in 20 sessions, 8,967,916 symbol-days *(recorded, survivor data)* | 0.68% base rate; combined gate 8.35% (12.19x); percentile version 6.31x with a stable universe | **Supported** on survivor data; to re-test point in time |
+| H7 | Options positioning and social text carry selection information | Information coefficients with 20-day returns *(recorded, enriched pool)* | Out-of-the-money call volume +0.061 (110 names, 2024+); mention level −0.054 | **Untested at scale** |
 
-**Is it doable, and is it worth forward testing?** Not deployable yet: no point-in-time selection
-has beaten the random floor. Worth forward testing, as paper trading: the inputs most directly
-linked to a squeeze, borrow fees and social text, have no free history, so recording them live is
-the only way to test them, and the live recorder (`src/memescan/data/live.py`) already does. Real
-capital should follow only if the walk-forward in the specification passes its acceptance criteria
-fixed in advance, starting with beating SPY's Sharpe ratio of 0.95.
+## Stage 2 results (corrected engine, after costs)
 
-## Highlights
+| Selection (same trigger, entry, exits, sizing and costs) | Trades | Win rate | Mean gross / trade | Mean cost / trade | Mean net / trade |
+|---|---:|---:|---:|---:|---:|
+| Names that later squeezed (hindsight list; upper bound, not a strategy) | 1,207 | 31.1% | +1.92% | 0.70% | +1.22% |
+| Random names from the same tradable pool (seed 7) | 895 | 35.1% | −0.04% | 1.06% | −1.09% |
+| Point-in-time price-and-volume screen | 819 | 32.0% | +0.02% | 1.22% | −1.21% |
+| Random names, 200 draws: median [5th, 95th percentile] | | | | | −0.87% [−1.19%, −0.73%] |
 
-* **The selection research finds where squeezes come from.** Of all symbol-days, 0.68% are followed
-  by a +100% move within 20 sessions; a combined structural gate raises that to 8.35%, a 12.19x
-  lift. A cross-sectional percentile version keeps a stable universe of about 40 names a day with a
-  6.31x lift, ready for walk-forward testing *(recorded on survivor data)*.
-* **Measured signals.** Distance from the all-time high (IC +0.165) and out-of-the-money call volume
-  (IC +0.061, the strongest positive found) carry information about 20-day returns; social mention
-  level is a late signal (IC −0.054).
-* **A backtest that can be trusted.** 19 defects that each produced a plausible-looking result were
-  found, measured and turned into tests, including a hindsight-chosen universe, same-bar fills,
-  split-adjusted price filters that read future reverse splits, and a solvency check that used P&L
-  that had not happened yet. The ported engine reproduces the research notebook to every printed
-  digit.
-* **A complete specification for the next experiment:** a 21-page pseudocode spec for a 7-fold
-  walk-forward with delisted names, theme limits, halts, staged rollout and acceptance criteria
-  fixed in advance.
+2,673 sessions (2016-01-04 to 2026-08-20), 10,236 tickers; entry at the next open; costs 0.1% plus a
+square-root impact term each way. Full table, both engines and drawdowns: [`docs/FINDINGS.md`](docs/FINDINGS.md).
+
+## Mechanism
+
+* **Costs set the bar selection must clear.** These names are illiquid: a round trip costs
+  1.22% per trade on average for the screen and 0.70% for the hindsight list. Selection has to earn
+  more than that before costs; the point-in-time screen earns +0.02%, the hindsight list +1.92%.
+* **The exit ladder captures the large moves when they happen.** On the 82-name list every trend-break
+  exit was a winner (323 trades, average +30.4%), and all ten best trades closed on it (August report).
+* **Stops do not cap losses on these names.** Hard-stop exits averaged −11.8% against a nominal −8%
+  (worst −39.1%) because of overnight gaps and trading halts; only position size limits the damage.
+
+## Threats to validity
+
+| Threat | How it is handled | What remains |
+|---|---|---|
+| Hindsight in the universe | Point-in-time universe; the language model never names stocks | The hindsight list is used only as a ceiling |
+| Look-ahead in features and fills | Tests with a positive control; entry at the next open; raw prices for price-level filters | None known |
+| Engine errors | Legacy engine reproduces the notebook exactly; two defects fixed and tested | None known |
+| Single random draw | 200 draws with a pre-specified test | All draws share one price history |
+| Survivorship | Not yet handled: delisted names are missing | Biases results **upward** for a long-only strategy; the fix is specified (FINRA membership) |
+| Recorded signal measurements | Marked *(recorded)*; measured on survivor or enriched pools | To be re-measured point in time |
+
+## Is it worth forward testing?
+
+Not deployable: no point-in-time selection has beaten random names. Worth paper trading, because the
+inputs most directly linked to a squeeze, borrow cost and social text, have no free history; recording
+them live (`src/memescan/data/live.py`) is the only way to test them. The next stage
+([`docs/spec/pipeline_spec.pdf`](docs/spec/pipeline_spec.pdf)) adds delisted names, options, float, dilution and
+social text, and must clear acceptance criteria fixed in advance, starting with beating SPY's Sharpe
+ratio of 0.95 and the random-names distribution.
+
+<!-- TOP:END -->
 
 ## Reports
 
@@ -95,43 +111,6 @@ the point-in-time baseline, and why each change was made.
 * [`src/memescan/gates.py`](src/memescan/gates.py): one function per defect class, each with the
   defect it exists for in its docstring.
 
-## Stage 2: what the price-and-volume baseline established (preliminary)
-
-Stage 2 tests the execution layer and the simplest possible selection, price and volume only, on
-every surviving US stock with costs and next-open fills. It is a baseline for the walk-forward,
-not a final result: the selection inputs with the most direct link to a squeeze have not been
-tested yet.
-
-<!-- SUMMARY:START -->
-| Selection, same entry, exits, sizing and costs | Trades | Win rate | Mean net return / trade |
-|---|---:|---:|---:|
-| Names known to squeeze (hindsight list; upper bound, invalid as a strategy) | 1,207 | 31.1% | +1.22% |
-| Random names from the same tradable pool (floor) | 895 | 35.1% | -1.09% |
-| Point-in-time price-and-volume screen | 819 | 32.0% | -1.21% |
-<!-- SUMMARY:END -->
-
-**What this establishes.**
-
-* **Selection is the whole problem, and it is worth testing properly.** With identical entry, exit,
-  sizing and cost rules, the per-trade result moves by more than two percentage points between
-  random names and names known to squeeze. The execution layer converts good selection into
-  profit; it cannot create it.
-* **Price and volume alone carry no selection skill.** The point-in-time screen lands at the
-  random-names floor, so the edge has to come from inputs that price and volume do not contain.
-* **The untested inputs are the hypothesis for Stage 3.** Short-squeeze mechanics run through
-  borrow cost, options positioning, float and dilution, and coordinated social attention. Of
-  these, only a mention count and FINRA short interest have been measured so far, and out-of-the-money
-  call volume already shows the strongest positive IC found (+0.061).
-
-**Stage 3, specified and not yet run** ([`docs/spec/pipeline_spec.pdf`](docs/spec/pipeline_spec.pdf)):
-
-* a point-in-time listing that includes delisted names (FINRA snapshots plus Alpaca bars);
-* options flow, social text, float and dilution added to the selection layer;
-* a 7-fold calendar walk-forward with a purge gap, a random-names floor and a SPY benchmark;
-* acceptance criteria fixed before the run, starting with beating SPY's Sharpe of 0.95.
-
-Full table, engine comparison and caveats: [`docs/FINDINGS.md`](docs/FINDINGS.md).
-
 ## Layout
 
 ```
@@ -145,7 +124,7 @@ src/memescan/
   controls.py      random-names floor, hindsight ceiling
   gates.py         quality gates, information coefficient
   llm.py           optional overlay, off by default: processes posts, never recalls the past
-scripts/           fetch_universe, fetch_finra, fetch_reddit, fetch_options, run_backtest, report, check_secrets
+scripts/           fetch_universe, fetch_finra, fetch_reddit, fetch_options, run_backtest, run_random_floor, report, check_secrets
 tests/             look-ahead (with a positive control), engine mechanics, gates, no credentials in the repo
 docs/              research log, findings, reports (Jul and Aug 2026), specifications (pseudocode pdf + tex, build spec v3)
 archive/           the original notebooks and scripts: credentials removed, outputs cleared, marked superseded
@@ -159,6 +138,7 @@ pip install -e ".[dev]"
 cp .env.example .env              # fill in APCA_API_KEY_ID / APCA_API_SECRET_KEY, then load it
 python scripts/fetch_universe.py  # ~18.5M daily bars, about an hour, resumable
 python scripts/run_backtest.py    # ~10 minutes
+python scripts/run_random_floor.py  # 200 random-name draws, ~40 minutes on 6 cores
 python scripts/report.py          # writes the generated summary and the findings table from results/
 pytest
 ```
@@ -166,17 +146,6 @@ pytest
 Price data comes from Alpaca's SIP feed (the Algo Trader Plus plan). FINRA, Arctic Shift and
 ApeWisdom need no key. Every script only reads data and never places an order. `scripts/check_secrets.py`
 fails if anything resembling a credential is in the tree.
-
-## Status
-
-* **Done:** the execution layer and the price-and-volume baseline (Stage 2), ported, tested and
-  reproduced, with the engine corrected.
-* **Not done:**
-  * the point-in-time listing that includes delisted names (spec Module 22), so the Stage 2 baseline is
-    not yet a full point-in-time test;
-  * the 7-fold walk-forward (spec Module 9).
-* **Not possible with free data:** borrow-fee history, the most direct measure of squeeze pressure.
-  The live recorder in `data/live.py` builds it forward.
 
 ## License
 
