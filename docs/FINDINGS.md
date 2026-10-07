@@ -57,11 +57,11 @@ ends in the same place; even the hindsight ceiling draws down −55%.
   (`scripts/run_random_floor.py`, specification `docs/spec/random_floor_test.md`, fixed before the run),
   the screen's mean net return per trade is below 95.5% of the draws (one-sided p = 0.96 for skill);
   the hindsight list is above all of them (p = 0.005).
-* **Only the hindsight list works.** That list is invalid by construction (Research log, defect 1).
-  It is shown for scale.
+* **Only the hindsight list works.** The hindsight list is invalid by construction (Research log, defect 1).
+  The list is shown for scale.
 * **Fixing the engine made the result worse, not better.** The legacy engine let losses that had not
   happened yet stop new entries, and its curve skipped entry-day moves and stop fills. Fixing both made
-  the point-in-time result worse. This is why defects 18 and 19 are listed even though they were found
+  the point-in-time result worse. The worse result is why defects 18 and 19 are listed even though they were found
   after the research ended.
 * **The legacy Sharpe and the legacy final equity contradict each other.** The legacy curve ends far
   from the realised P&L (the `curve_end_minus_final` column in `results/backtest_summary.csv`), so its
@@ -73,7 +73,7 @@ from FINRA snapshots, with Alpaca bars for delisted names) is specified but not 
 
 ## 2. Findings carried from the research notebooks
 
-Measured in `archive/`. They were measured on survivor universes, and in some cases on the biased
+Measured in `archive/`. The findings were measured on survivor universes, and in some cases on the biased
 195-name pool, so they are observations to re-test, not established properties.
 
 ### Base rates
@@ -95,10 +95,10 @@ Event: a gain of +100% or more within 20 sessions. Denominator: 8,967,916 symbol
 **Absolute thresholds are unusable in a walk-forward.** The combined absolute gate selects 3 names a
 day in 2021 and 23 in 2025, an eightfold drift. Cross-sectional percentiles (top 10% by ATR and by
 20-day return, drawdown above the median) give about 40 names a day with a coefficient of variation
-of 0.27 and a lift of 6.31x. That is the specified replacement.
+of 0.27 and a lift of 6.31x. The percentile gate is the specified replacement.
 
 **More price-and-volume gates add nothing.** Gap frequency has a standalone lift of 5.19x but 0.99x
-on top of the base gate. It selects the same names as high ATR.
+on top of the base gate. Gap frequency selects the same names as high ATR.
 
 ### Information coefficients
 
@@ -164,5 +164,5 @@ Two further statements in the August report differ from the v2 pipeline and are 
   specification's $1M floor and no ATR floor (section 1, rules).
 
 None of these values is regenerated here. The table in section 1 is the only backtest result this
-repository stands behind. Its message agrees with the August report's own conclusion and is
+repository stands behind. The section 1 result agrees with the August report's own conclusion and is
 stronger: no valid version beats SPY's 0.95, and the full-universe version with costs loses money.

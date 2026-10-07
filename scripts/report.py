@@ -84,6 +84,10 @@ are specified for the next stage and not yet tested.
 
 ## Hypotheses and verdicts
 
+The hypotheses follow the argument: H1 rules out the original universe, H2–H3 test whether selection
+decides the result and whether price and volume can select, and H4–H7 record what is known about the
+inputs that could select better.
+
 | | Hypothesis | Test | Evidence | Verdict |
 |---|---|---|---|---|
 | H1 | A list of meme stocks named by a language model is a valid universe | Same rules on the list and on random names (August report) | +3.12% per trade on the list, −0.60% on 113 random names; a model trained after 2021 already knows which stocks squeezed | **Rejected**: hindsight bias |
@@ -96,6 +100,8 @@ are specified for the next stage and not yet tested.
 
 ## Stage 2 results (corrected engine, after costs)
 
+The table splits each selection's result into gross return and cost per trade, which is where H2 and H3 are decided.
+
 {chr(10).join(rows)}
 
 {meta['sessions']:,} sessions ({meta['first']} to {meta['last']}), {meta['tickers']:,} tickers; entry at the next open; costs 0.1% plus a
@@ -103,7 +109,10 @@ square-root impact term each way. Full table, both engines and drawdowns: [`docs
 
 ## Mechanism
 
-* **Costs set the bar selection must clear.** These names are illiquid: a round trip costs
+Three measured facts explain the results: what costs demand from selection, what the exits capture, and
+what stops cannot prevent.
+
+* **Costs set the bar selection must clear.** The selected names are illiquid: a round trip costs
   {pct(c.loc[pit, 'cost'], 2, False)} per trade on average for the screen and {pct(c.loc[ceil, 'cost'], 2, False)} for the hindsight list. Selection has to earn
   more than that before costs; the point-in-time screen earns {pct(g(pit))}, the hindsight list {pct(g(ceil))}.
 * **The exit ladder captures the large moves when they happen.** On the 82-name list every trend-break
@@ -112,6 +121,9 @@ square-root impact term each way. Full table, both engines and drawdowns: [`docs
   (worst −39.1%) because of overnight gaps and trading halts; only position size limits the damage.
 
 ## Threats to validity
+
+Each threat below could make the strategy look better or worse than it is. The table states how the design
+handles each and what remains open.
 
 | Threat | How it is handled | What remains |
 |---|---|---|
@@ -123,6 +135,8 @@ square-root impact term each way. Full table, both engines and drawdowns: [`docs
 | Recorded signal measurements | Marked *(recorded)*; measured on survivor or enriched pools | To be re-measured point in time |
 
 ## Is it worth forward testing?
+
+The verdicts above decide what the next stage needs and whether it can be tested on history at all.
 
 Not deployable: no point-in-time selection has beaten random names. Worth paper trading, because the
 inputs most directly linked to a squeeze, borrow cost and social text, have no free history; recording
